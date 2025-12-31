@@ -2,6 +2,10 @@
 import json
 import subprocess
 from datetime import datetime
+import smtplib
+from email.message import EmailMessage
+import re
+
 
 ALERTS_FILE = "/var/ossec/logs/alerts/alerts.json"
 DATE_NOW = datetime.now().strftime("%Y-%m-%d")
@@ -101,6 +105,34 @@ report.append(f"Manager Status: {manager_status}\n")
 report.append("Best Regards,\nSIEMonster\n")
 full_report = "\n".join(report)
 
-send_cmd = f'echo "{full_report}" | mail -s "Weekly Wazuh Security Summary - {DATE_NOW}" {ADMIN_EMAIL}'
-subprocess.call(send_cmd, shell=True)
+#send_cmd = f'echo "{full_report}" | mail -s "Weekly Wazuh Security Summary - {DATE_NOW}" {ADMIN_EMAIL}'
+#subprocess.call(send_cmd, shell=True)
+# =======================
+# send mail
+# =======================
+postfix_config = {}
+with open("/etc/postfix/main.cf") as f:
+    postfix_config = dict(
+        line.strip().split("=", 1)
+        for line in f
+        if line.strip() and not line.startswith("#") and "=" in line
+    )
 
+relay = postfix_config.get("relayhost", "localhost")
+SMTP_SERVER = re.sub(r'[\[\]]', '', relay)
+if ":" in SMTP_SERVER:
+    SMTP_SERVER, SMTP_PORT = SMTP_SERVER.split(":")
+    SMTP_PORT = int(SMTP_PORT)
+else:
+    SMTP_PORT = 25
+
+FROM_EMAIL = "SIEMonster@asocanalys@gmail.com.com"
+
+msg = EmailMessage()
+msg["From"] = FROM_EMAIL
+msg["To"] = ADMIN_EMAIL
+msg["Subject"] = f"Wazuh Security Report - {DATE_NOW}"
+msg.set_content(full_report)
+
+with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as server:
+        server.send_message(msg)
