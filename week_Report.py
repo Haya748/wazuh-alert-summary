@@ -4,6 +4,7 @@ import subprocess
 from datetime import datetime
 import smtplib
 from email.message import EmailMessage
+from email.utils import formataddr
 import re
 
 
@@ -126,15 +127,17 @@ if ":" in SMTP_SERVER:
 else:
     SMTP_PORT = 25
 
+FROM_NAME = "SIEMonster"
 FROM_EMAIL = "SIEMonster@asocanalys@gmail.com"
 
 msg = EmailMessage()
-msg["From"] = FROM_EMAIL
+msg["From"] = formataddr((FROM_NAME, FROM_EMAIL))
 msg["To"] = ADMIN_EMAIL
 msg["Subject"] = f"Wazuh Security Report - {DATE_NOW}"
 msg.set_content(full_report)
 
 with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as server:
         server.send_message(msg)
+
 
 
