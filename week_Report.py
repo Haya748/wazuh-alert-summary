@@ -89,12 +89,18 @@ for agent in agents:
     for attack, count in attacks.items():
         report.append(f"   - {attack} ({count} logs)")
     report.append(f"\nMost common attack for this Agent is: {common_attack}\n")
+    
 top_agent = max(agent_alert_counts, key=agent_alert_counts.get) if agent_alert_counts else "None"
+
 report.append(f"Total logs for all Agents: {total_all_logs}")
 report.append(f"Most alerts come from Agent: {top_agent}")
+
 manager_status = run("systemctl is-active wazuh-manager").strip()
 report.append(f"Manager Status: {manager_status}\n")
+
 report.append("Best Regards,\nSIEMonster\n")
 full_report = "\n".join(report)
+
 send_cmd = f'echo "{full_report}" | mail -s "Weekly Wazuh Security Summary - {DATE_NOW}" {ADMIN_EMAIL}'
 subprocess.call(send_cmd, shell=True)
+
