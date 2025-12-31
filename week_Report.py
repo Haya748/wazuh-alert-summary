@@ -126,7 +126,7 @@ if ":" in SMTP_SERVER:
 else:
     SMTP_PORT = 25
 
-FROM_EMAIL = "SIEMonster@asocanalys@gmail.com.com"
+FROM_EMAIL = "SIEMonster@asocanalys@gmail.com"
 
 msg = EmailMessage()
 msg["From"] = FROM_EMAIL
@@ -136,4 +136,5 @@ msg.set_content(full_report)
 
 with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as server:
         server.send_message(msg)
+
 
