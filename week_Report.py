@@ -136,3 +136,4 @@ msg.set_content(full_report)
 
 with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as server:
         server.send_message(msg)
+
